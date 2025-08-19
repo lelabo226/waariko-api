@@ -1,4 +1,4 @@
-const { Client } = require("../db/sequelize");
+const { Client,Project } = require("../db/sequelize");
 const { ValidationError } = require("sequelize");
 const auth = require("../auth/auth");
 
@@ -92,6 +92,35 @@ module.exports = (app) => {
         }
 
         const message = `Une erreur est survenue lors de la mise à jour du client. Veuillez réessayer plus tard.`;
+        res.status(500).json({ message, data: error });
+      });
+  });
+   // Récupérer le client assigné à un projet donné
+  app.get("/api/projects/:projectId/client", auth, (req, res) => {
+    const projectId = req.params.projectId;
+
+    Project.findByPk(projectId, {
+      include: [
+        {
+          model: Client,
+          as: "Client",  
+        },
+      ],
+    })
+      .then((project) => {
+        if (!project) {
+          return res.status(404).json({ message: "Projet introuvable." });
+        }
+
+        if (!project.Client) {
+          return res.status(404).json({ message: "Aucun client associé à ce projet." });
+        }
+
+        const message = `Client récupéré.`;
+        res.json({ message, data: project.Client });
+      })
+      .catch((error) => {
+        const message = "Impossible de récupérer le client du projet.";
         res.status(500).json({ message, data: error });
       });
   });
