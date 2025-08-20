@@ -104,8 +104,10 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Company.associate = (models) => {
-    Company.belongsTo(models.User, { foreignKey: "userId" });
-  };
+  Company.belongsTo(models.User, { foreignKey: "userId" });
 
+  // ✅ si une entreprise émet plusieurs factures
+  Company.hasMany(models.Facture, { foreignKey: "companyId" });
+};
   return Company;
 };

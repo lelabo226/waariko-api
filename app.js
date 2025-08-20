@@ -44,6 +44,9 @@ require("./src/routes/achatEndpoints")(app);
 require("./src/routes/updateInfoEndpoints")(app);
 require("./src/routes/subscriptionEndpoints")(app);
 
+require("./src/routes/invoiceTemplateEndpoints")(app);
+
+
 // Configurer le Cron Job pour s'exécuter tous les jours à minuit
 cron.schedule("0 0 * * *", updateExpiredSubscriptions);
 

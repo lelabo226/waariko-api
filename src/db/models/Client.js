@@ -63,6 +63,9 @@ module.exports = (sequelize, DataTypes) => {
   Client.associate = (models) => {
     // Un client est associé à un utilisateur
     Client.belongsTo(models.User, { foreignKey: "userId" });
+
+      // ✅ si tu veux qu’un client soit lié à plusieurs factures :
+  Client.hasMany(models.Facture, { foreignKey: "clientId" });
   };
 
   return Client;

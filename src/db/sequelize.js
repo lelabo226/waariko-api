@@ -1,6 +1,8 @@
 // @ts-nocheck
 const { Sequelize, DataTypes } = require("sequelize");
 require("dotenv").config();
+
+// Import des modèles
 const UserModel = require("./models/User");
 const ClientModel = require("./models/Client");
 const AdminModel = require("./models/Admin");
@@ -16,13 +18,18 @@ const PrestataireModel = require("./models/Prestataire");
 
 const FournisseurRepertoryModel = require("./models/FournisseurRepertory");
 const FournisseurModel = require("./models/Fournisseur");
+
 const SubscriptionPlanModel = require("./models/SubscriptionPlan");
 const UserSubscriptionModel = require("./models/UserSubscription");
 const TaskListModel = require("./models/TaskList");
 const TaskModel = require("./models/Task");
+
 const AchatRepertoryModel = require("./models/AchatRepertory");
 const AchatModel = require("./models/Achat");
 
+const InvoiceTemplateModel = require("./models/InvoiceTemplate");
+
+// Connexion Sequelize
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -41,6 +48,7 @@ const sequelize = new Sequelize(
   }
 );
 
+// Initialisation des modèles
 const User = UserModel(sequelize, DataTypes);
 const Admin = AdminModel(sequelize, DataTypes);
 const Client = ClientModel(sequelize, DataTypes);
@@ -56,41 +64,108 @@ const Prestataire = PrestataireModel(sequelize, DataTypes);
 
 const FournisseurRepertory = FournisseurRepertoryModel(sequelize, DataTypes);
 const Fournisseur = FournisseurModel(sequelize, DataTypes);
+
 const SubscriptionPlan = SubscriptionPlanModel(sequelize, DataTypes);
 const UserSubscription = UserSubscriptionModel(sequelize, DataTypes);
+
 const TaskList = TaskListModel(sequelize, DataTypes);
 const Task = TaskModel(sequelize, DataTypes);
+
 const AchatRepertory = AchatRepertoryModel(sequelize, DataTypes);
 const Achat = AchatModel(sequelize, DataTypes);
 
-// Appeler les associations après avoir initialisé les modèles
-User.associate({ Company });
-Company.associate({ User });
-Client.associate({ User });
-Project.associate({ Client });
-Project.hasMany(Facture, { foreignKey: "projectId" });
-Facture.associate({ Project });
-FactureItem.associate({ Facture });
-PersonnelRepertory.associate({ User });
-Personnel.associate({ PersonnelRepertory });
-PrestataireRepertory.associate({ User });
-Prestataire.associate({ PrestataireRepertory });
-FournisseurRepertory.associate({ User });
-Fournisseur.associate({ FournisseurRepertory });
-UserSubscription.associate({ User });
-TaskList.associate({ User, Task });
-Task.associate({ User, TaskList });
-AchatRepertory.associate({ User });
-Achat.associate({ AchatRepertory });
+const InvoiceTemplate = InvoiceTemplateModel(sequelize, DataTypes);
 
+// ======================
+// Définition des relations
+// ======================
+
+// User / Company
+User.hasMany(Company, { foreignKey: "userId" });
+Company.belongsTo(User, { foreignKey: "userId" });
+
+// User / Client
+User.hasMany(Client, { foreignKey: "userId" });
+Client.belongsTo(User, { foreignKey: "userId" });
+
+// Project / Client
+Client.hasMany(Project, { foreignKey: "clientId" });
+Project.belongsTo(Client, { foreignKey: "clientId" });
+
+// Project / Facture
+Project.hasMany(Facture, { foreignKey: "projectId" });
+Facture.belongsTo(Project, { foreignKey: "projectId" });
+
+// Facture / Client
+Client.hasMany(Facture, { foreignKey: "clientId" });
+Facture.belongsTo(Client, { foreignKey: "clientId" });
+
+// Facture / Company
+Company.hasMany(Facture, { foreignKey: "companyId" });
+Facture.belongsTo(Company, { foreignKey: "companyId" });
+
+// Facture / FactureItem
+Facture.hasMany(FactureItem, { foreignKey: "factureId" });
+FactureItem.belongsTo(Facture, { foreignKey: "factureId" });
+
+// Personnel
+User.hasMany(PersonnelRepertory, { foreignKey: "userId" });
+PersonnelRepertory.belongsTo(User, { foreignKey: "userId" });
+
+PersonnelRepertory.hasMany(Personnel, { foreignKey: "repertoryId" });
+Personnel.belongsTo(PersonnelRepertory, { foreignKey: "repertoryId" });
+
+// Prestataire
+User.hasMany(PrestataireRepertory, { foreignKey: "userId" });
+PrestataireRepertory.belongsTo(User, { foreignKey: "userId" });
+
+PrestataireRepertory.hasMany(Prestataire, { foreignKey: "repertoryId" });
+Prestataire.belongsTo(PrestataireRepertory, { foreignKey: "repertoryId" });
+
+// Fournisseur
+User.hasMany(FournisseurRepertory, { foreignKey: "userId" });
+FournisseurRepertory.belongsTo(User, { foreignKey: "userId" });
+
+FournisseurRepertory.hasMany(Fournisseur, { foreignKey: "repertoryId" });
+Fournisseur.belongsTo(FournisseurRepertory, { foreignKey: "repertoryId" });
+
+// Abonnements
+User.hasMany(UserSubscription, { foreignKey: "userId" });
+UserSubscription.belongsTo(User, { foreignKey: "userId" });
+
+SubscriptionPlan.hasMany(UserSubscription, { foreignKey: "planId" });
+UserSubscription.belongsTo(SubscriptionPlan, { foreignKey: "planId" });
+
+// Tâches
+User.hasMany(TaskList, { foreignKey: "userId" });
+TaskList.belongsTo(User, { foreignKey: "userId" });
+
+TaskList.hasMany(Task, { foreignKey: "taskListId" });
+Task.belongsTo(TaskList, { foreignKey: "taskListId" });
+
+User.hasMany(Task, { foreignKey: "userId" });
+Task.belongsTo(User, { foreignKey: "userId" });
+
+// Achats
+User.hasMany(AchatRepertory, { foreignKey: "userId" });
+AchatRepertory.belongsTo(User, { foreignKey: "userId" });
+
+AchatRepertory.hasMany(Achat, { foreignKey: "repertoryId" });
+Achat.belongsTo(AchatRepertory, { foreignKey: "repertoryId" });
+
+// ======================
+// Initialisation
+// ======================
 const initDb = () => {
-  return sequelize.sync().then(() => {
-    console.log(`La base de données a bien été initialisée !`);
+  return sequelize.sync({  }).then(() => {
+    console.log(`✅ La base de données a bien été initialisée !`);
   });
 };
 
+// Export
 module.exports = {
   initDb,
+  sequelize,
   User,
   Admin,
   Client,
@@ -110,4 +185,5 @@ module.exports = {
   Task,
   AchatRepertory,
   Achat,
+  InvoiceTemplate,
 };

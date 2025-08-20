@@ -63,19 +63,12 @@ module.exports = (sequelize, DataTypes) => {
     { timestamps: true }
   );
 
-  FactureItem.associate = (models) => {
-    // Un FactureItem appartient à un projet
-    // FactureItem.belongsTo(models.Project, { foreignKey: "projectId" });
+ FactureItem.associate = (models) => {
+  FactureItem.belongsTo(models.Facture, { foreignKey: "factureId" });
 
-    // Un FactureItem appartient à un client
-    // FactureItem.belongsTo(models.Client, { foreignKey: "clientId" });
-
-    // Un FactureItem appartient à une facture
-    FactureItem.belongsTo(models.Facture, { foreignKey: "factureId" });
-
-    // Un FactureItem appartient à un utilisateur
-    //FactureItem.belongsTo(models.User, { foreignKey: "userId" });
-  };
+  // si tu veux naviguer aussi depuis Facture vers FactureItem
+  models.Facture.hasMany(models.FactureItem, { foreignKey: "factureId" });
+};
 
   return FactureItem;
 };
