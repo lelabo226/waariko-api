@@ -4,7 +4,11 @@ const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
 const Handlebars = require("handlebars");
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
+const chromium = require("chromium");
+
+
+
 
 module.exports = (app) => {
   // Récupérer tous les templates
@@ -63,7 +67,10 @@ module.exports = (app) => {
       });
 
       // 5. Génération du PDF avec Puppeteer
-      const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+      const browser = await puppeteer.launch({
+        executablePath: chromium.path,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
       const page = await browser.newPage();
       await page.setContent(htmlWithData, { waitUntil: "networkidle0" });
 
