@@ -81,14 +81,16 @@ module.exports = (app) => {
       });
 
       await browser.close();
+      res.setHeader("Content-Type", "application/pdf");
+       
 
-      if (!pdfBuffer || pdfBuffer.length < 100) {
-        console.error("PDF généré vide !");
-      }
+       const filePath = path.join(__dirname, "public", "downloads", `facture.pdf`);
+       fs.writeFileSync(filePath, pdfBuffer);
+       //https://waariko-api-yazq.onrender.com
+       const fileUrl = `https://waariko-api-yazq.onrender.com/downloads/facture.pdf`;
    
       // 6. Retourner le PDF au client
-      res.setHeader("Content-Type", "application/pdf");
-      res.send(pdfBuffer);
+     res.json({ url: fileUrl });
 
     } catch (error) {
       console.error("Erreur lors de la génération du PDF :", error);

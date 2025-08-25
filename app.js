@@ -3,6 +3,7 @@ const express = require("express");
 const { initDb } = require("./src/db/sequelize");
 const favicon = require("serve-favicon");
 const cors = require("cors");
+const path = require("path");
 
 const cron = require("node-cron");
 
@@ -56,7 +57,7 @@ app.use(({ res }) => {
  
   res?.status(404).json({ message });
 });
-
+app.use("/downloads", express.static(path.join(__dirname, "public", "downloads")));
 app.listen(port,"0.0.0.0", () => {
   console.log(`Notre api a démaré sur : http://localhost:${port}`);
 });
