@@ -89,6 +89,7 @@ module.exports = (app) => {
         res.json({ message: "Profil réccupéré.", data: company });
       })
       .catch((error) => {
+        console.log(error);
         res
           .status(500)
           .json({ message: "Erreur de récupération du profil.", data: error });

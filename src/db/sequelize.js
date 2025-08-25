@@ -81,9 +81,8 @@ const InvoiceTemplate = InvoiceTemplateModel(sequelize, DataTypes);
 // ======================
 
 // User / Company
-User.hasMany(Company, { foreignKey: "userId" });
-Company.belongsTo(User, { foreignKey: "userId" });
-
+User.hasOne(Company, { as: "company", foreignKey: "userId" });
+Company.belongsTo(User, { as: "user", foreignKey: "userId" });
 // User / Client
 User.hasMany(Client, { foreignKey: "userId" });
 Client.belongsTo(User, { foreignKey: "userId" });
@@ -157,7 +156,7 @@ Achat.belongsTo(AchatRepertory, { foreignKey: "repertoryId" });
 // Initialisation
 // ======================
 const initDb = () => {
-  return sequelize.sync({  }).then(() => {
+  return sequelize.sync().then(() => {
     console.log(`✅ La base de données a bien été initialisée !`);
   });
 };

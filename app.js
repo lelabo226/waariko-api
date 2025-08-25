@@ -53,10 +53,11 @@ cron.schedule("0 0 * * *", updateExpiredSubscriptions);
 //404 error managment
 app.use(({ res }) => {
   const message = `Impossible de trouver la ressource demandée! Vous pouvez essayer une autre URL.`;
+ 
   res?.status(404).json({ message });
 });
 
-app.listen(port, () => {
+app.listen(port,"0.0.0.0", () => {
   console.log(`Notre api a démaré sur : http://localhost:${port}`);
 });
 

@@ -17,6 +17,7 @@ module.exports = (app) => {
         const message =
           "La facture n'a pas pu être créée. Réessayez dans quelques instants.";
         res.status(500).json({ message, data: error });
+        console.log(error);
       });
   });
 
