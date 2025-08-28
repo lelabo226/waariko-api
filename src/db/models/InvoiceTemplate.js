@@ -15,7 +15,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING, // URL de l’image miniature pour Flutter
         allowNull: true,
       },
-      filePath: {
+      invoiceFilePath: {
+        type: DataTypes.STRING, // Chemin vers le fichier HTML du template
+        allowNull: false,
+      },
+       blFilePath: {
         type: DataTypes.STRING, // Chemin vers le fichier HTML du template
         allowNull: false,
       },

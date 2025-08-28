@@ -7,6 +7,7 @@ const {
   Project,
 } = require("../db/sequelize");
 const auth = require("../auth/auth");
+const formatAmount = require("../utilsFunctions/formatNumber").formatAmount;
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
@@ -23,19 +24,13 @@ module.exports = (app) => {
   app.get("/api/templates", auth, async (req, res) => {
     try {
       const templates = await InvoiceTemplate.findAll({
-        attributes: [
-          "id",
-          "name",
-          "previewUrl",
-          "primaryColor",
-          "secondaryColor",
-        ],
       });
       res.json({
         message: "Templates récupérés avec succès.",
         data: templates,
       });
     } catch (error) {
+      console.log(`Impossible de récupérer les templates: ${error.message}`);
       res.status(500).json({
         message: "Impossible de récupérer les templates.",
         data: error,
@@ -90,9 +85,10 @@ module.exports = (app) => {
         const totalAfterTax = totalAfterDiscount + vatAmount;
 
         // Ajouter ces valeurs dans l’objet envoyé au template
-        plainFacture.remiseAmount = discountAmount;
-        plainFacture.tvaAmount = vatAmount;
-        plainFacture.totalAmountAfterTax = totalAfterTax;
+        plainFacture.remiseAmount = formatAmount(discountAmount);
+        plainFacture.tvaAmount = formatAmount(vatAmount);
+        plainFacture.totalAmountAfterTax = formatAmount(totalAfterTax);
+        plainFacture.totalAmount = formatAmount(totalHT);
 
         plainFacture.totalAmountInLetter = n2words(totalHT, { lang: "fr" });
         plainFacture.totalAmountAfterTaxInLetter = n2words(totalAfterTax, {
@@ -109,14 +105,14 @@ module.exports = (app) => {
         // 3. Récupérer le HTML via son url
         let templateHtml;
         if (
-          template.filePath.startsWith("http") ||
-          template.filePath.startsWith("https")
+          (plainFacture.type=="BORDEREAU" ? template.blFilePath : template.invoiceFilePath).startsWith("http") ||
+          (plainFacture.type=="BORDEREAU" ? template.blFilePath : template.invoiceFilePath).startsWith("https")
         ) {
-          const response = await axios.get(template.filePath);
+          const response =  plainFacture.type==="BORDEREAU" ? await  axios.get(template.blFilePath) :  await axios.get(template.invoiceFilePath);
           templateHtml = response.data;
         } else {
           templateHtml = fs.readFileSync(
-            path.resolve(template.filePath),
+            path.resolve( plainFacture.type==="BORDEREAU" ? template.blFilePath : template.invoiceFilePath),
             "utf8"
           );
         }

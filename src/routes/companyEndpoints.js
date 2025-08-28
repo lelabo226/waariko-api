@@ -123,4 +123,43 @@ module.exports = (app) => {
       });
     }
   });
+
+  // Mettre à jour uniquement le modèle de facture d'une entreprise
+  app.put("/api/companies/:id/facture-model", auth, async (req, res) => {
+    const companyId = req.params.id;
+    const {
+      factureModelNumber,
+      factureModelPrimaryColor,
+      factureModelSecondaryColor,
+    } = req.body;
+
+    try {
+      // Vérifier si l'entreprise existe
+      const company = await Company.findByPk(companyId);
+      if (!company) {
+        return res.status(404).json({ message: "Entreprise non trouvée." });
+      }
+
+      // Mettre à jour uniquement les champs spécifiques
+      await company.update({
+        factureModelNumber,
+        factureModelPrimaryColor,
+        factureModelSecondaryColor,
+      });
+
+      res.status(200).json({
+        message: "Modèle de facture mis à jour avec succès.",
+        data: company,
+      });
+    } catch (error) {
+      console.error(
+        "Erreur lors de la mise à jour du modèle de facture :",
+        error
+      );
+      res.status(500).json({
+        message: "Erreur lors de la mise à jour du modèle de facture.",
+        data: error,
+      });
+    }
+  });
 };
